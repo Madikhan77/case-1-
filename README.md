@@ -12,15 +12,16 @@
 7. `broken lights` — повреждённые фары/фонари  
 8. `non-damage` — без повреждений *(если `regions` пустой)*  
 
----
 
 ## 📂 Структура проекта
+
 
 dataset/
 ├─ image/
 │ └─ image/ # train изображения
 ├─ validation/
 │ └─ validation/ # validation изображения
+
 0Train_via_annos.json # аннотации (train, VIA)
 0Val_via_annos.json # аннотации (val, VIA)
 train_history.json # история обучения
@@ -31,9 +32,9 @@ presentation.html # слайды с результатами
 train.py / main.py # обучение модели
 
 yaml
-Копировать код
 
----
+
+
 
 ## ☁️ Весa модели
 
@@ -49,7 +50,7 @@ yaml
 Рекомендуется Python 3.10–3.11.  
 Минимальные зависимости:
 
-```bash
+```
 pip install torch torchvision numpy pillow scikit-learn matplotlib seaborn tqdm streamlit
 Или через файл:
 
