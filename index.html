@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Классификация повреждений автомобилей</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      overflow: hidden;
+    }
+    .slide {
+      display: none;
+      height: 100vh;
+      width: 100vw;
+      padding: 80px;
+      box-sizing: border-box;
+      transition: opacity 0.6s ease-in-out;
+    }
+    .active {
+      display: block;
+    }
+    h1 {
+      font-size: 2.6em;
+      color: #38bdf8;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 1.6em;
+      color: #7dd3fc;
+    }
+    p, li {
+      font-size: 1.2em;
+      line-height: 1.6em;
+    }
+    .metrics {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 1.3em;
+      margin-top: 20px;
+    }
+    ul {
+      margin-top: 20px;
+    }
+    .btns {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+    }
+    button {
+      background: #38bdf8;
+      border: none;
+      color: #0f172a;
+      font-size: 1em;
+      padding: 12px 20px;
+      margin: 5px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #7dd3fc;
+    }
+    .chart {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Слайд 1 -->
+  <div class="slide active">
+    <h1>🚗 Проект: Классификация повреждений автомобилей</h1>
+    <h2>Модель на PyTorch (ResNet50) для 8 классов</h2>
+    <p>Задача: автоматически определять тип повреждения автомобиля по фотографии.</p>
+  </div>
+
+  <!-- Слайд 2 -->
+  <div class="slide">
+    <h1>📂 Датасет</h1>
+    <ul>
+      <li>Разметка в формате <b>VIA (VGG Image Annotator)</b>.</li>
+      <li>Фотографии автомобилей с реальными повреждениями.</li>
+      <li>Аннотации на вьетнамском языке (<i>rach</i> = scratch, <i>mop_lom</i> = dent, <i>vo_kinh</i> = broken glass).</li>
+      <li>Создатели: вероятно <b>страховые компании и исследователи</b> во Вьетнаме.</li>
+      <li>Аналоги: Kaggle Car Damage Dataset, CompCars, Carvana dataset.</li>
+    </ul>
+  </div>
+
+  <!-- Слайд 3 -->
+  <div class="slide">
+    <h1>📊 Результаты обучения</h1>
+    <div class="metrics">
+      <p><b>Train Accuracy:</b> 70.52%</p>
+      <p><b>Validation Accuracy:</b> 67.60%</p>
+      <p><b>Macro F1:</b> 0.417</p>
+      <p><b>Macro Precision:</b> 0.390</p>
+      <p><b>Macro Recall:</b> 0.471</p>
+      <p><b>Balanced Accuracy:</b> 0.754</p>
+    </div>
+
+    <div class="chart">
+      <canvas id="metricsChart" width="600" height="400"></canvas>
+    </div>
+  </div>
+
+  <!-- Слайд 4 -->
+  <div class="slide">
+    <h1>🛠️ Трудности</h1>
+    <ul>
+      <li>Дисбаланс классов в датасете.</li>
+      <li>Недостаточно примеров для <b>non-damage</b>, <b>punctured</b> и <b>torn</b>.</li>
+      <li>Путаница между похожими категориями (например, dent vs punctured).</li>
+      <li>Модель обучалась только <b>7 эпох</b> (3 warmup + 4 fine-tune).</li>
+    </ul>
+  </div>
+
+  <!-- Слайд 5 -->
+  <div class="slide">
+    <h1>✅ Выводы</h1>
+    <ul>
+      <li>Уже после 7 эпох модель достигла <b>67.6% val accuracy</b>.</li>
+      <li>Balanced Accuracy = <b>0.754</b> показывает, что сеть учитывает редкие классы.</li>
+      <li>Для улучшения: собрать больше данных, oversampling, data augmentation.</li>
+    </ul>
+  </div>
+
+  <div class="btns">
+    <button onclick="prevSlide()">◀ Назад</button>
+    <button onclick="nextSlide()">Вперёд ▶</button>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    let current = 0;
+    const slides = document.querySelectorAll('.slide');
+
+    function showSlide(index) {
+      slides[current].classList.remove('active');
+      current = (index + slides.length) % slides.length;
+      slides[current].classList.add('active');
+    }
+    function nextSlide() { showSlide(current + 1); }
+    function prevSlide() { showSlide(current - 1); }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === "ArrowRight") nextSlide();
+      if (e.key === "ArrowLeft") prevSlide();
+    });
+
+    // график метрик
+    const ctx = document.getElementById('metricsChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Train Acc', 'Val Acc', 'MacroF1', 'MacroP', 'MacroR', 'bAcc'],
+        datasets: [{
+          label: 'Метрики',
+          data: [70.52, 67.60, 41.7, 39.0, 47.1, 75.4],
+          backgroundColor: '#38bdf8'
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
